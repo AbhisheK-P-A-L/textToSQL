@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>NL Expense Tracker — Spring Boot Guide</title>
+<style>
+  :root {
+    --bg: #f9f8f5;
+    --surface: #ffffff;
+    --border: #e2e0d8;
+    --text: #1a1a18;
+    --muted: #6b6a64;
+    --accent: #4f46e5;
+    --accent-light: #eef2ff;
+    --green: #166534;
+    --green-bg: #f0fdf4;
+    --amber: #92400e;
+    --amber-bg: #fffbeb;
+    --red: #991b1b;
+    --red-bg: #fef2f2;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --radius: 10px;
+    --font: 'Segoe UI', system-ui, sans-serif;
+    --mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #13131a;
+      --surface: #1e1e2e;
+      --border: #2e2e3e;
+      --text: #e0dfd8;
+      --muted: #9ca3af;
+      --accent: #818cf8;
+      --accent-light: #1e1b4b;
+      --green: #86efac;
+      --green-bg: #052e16;
+      --amber: #fcd34d;
+      --amber-bg: #1c1400;
+      --red: #fca5a5;
+      --red-bg: #1c0000;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 0 0 80px;
+  }
+
+  /* Header */
+  .hero {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px 36px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 600px;
+  }
+
+  /* Layout */
+  .container { max-width: 880px; margin: 0 auto; padding: 0 40px; }
+
+  /* Section */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 28px 0;
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .section-header .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    font-family: var(--mono);
+  }
+  .section-body { padding: 24px; }
+
+  /* Callout boxes */
+  .callout {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .callout.info  { background: var(--accent-light); color: var(--accent); }
+  .callout.tip   { background: var(--green-bg);  color: var(--green); }
+  .callout.warn  { background: var(--amber-bg);  color: var(--amber); }
+  .callout.note  { background: var(--red-bg);    color: var(--red); }
+  .callout-icon  { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout p     { color: inherit; }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.65;
+    margin: 14px 0;
+  }
+  code.inline {
+    background: var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .file-label {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    background: var(--accent);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 5px 5px 0 0;
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Architecture grid */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+  @media (max-width: 640px) { .arch-grid { grid-template-columns: 1fr; } }
+  .arch-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .arch-card .layer {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .arch-card .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .arch-card .detail {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* Flow steps */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .flow-text strong { color: var(--text); font-size: 14px; display: block; }
+  .flow-text span   { color: var(--muted); font-size: 13px; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 14px 0; }
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td:first-child { font-family: var(--mono); font-size: 12.5px; color: var(--accent); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+
+  /* File tree */
+  .tree {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--code-text);
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 20px 22px;
+    line-height: 2;
+  }
+  .tree .dir  { color: #89b4fa; }
+  .tree .file { color: #cdd6f4; }
+  .tree .dim  { color: #6c7086; }
+
+  p { margin: 10px 0; color: var(--muted); font-size: 14px; }
+  ul { padding-left: 20px; margin: 10px 0; }
+  li { margin: 5px 0; font-size: 14px; color: var(--muted); }
+  li strong { color: var(--text); }
+
+  .repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 8px 0;
+  }
+  .repo-link:hover { opacity: .88; }
+
+  h3 { font-size: 14px; font-weight: 600; color: var(--text); margin: 20px 0 8px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">Implementation Guide</div>
+  <h1>Natural Language Expense Tracker<br>with AI Insights</h1>
+  <p>Build a Spring Boot backend that accepts natural language expense input (e.g. "I spent 300 bucks on Amazon today"), parses it using an LLM, and generates AI-powered spending insights.</p>
+</div>
+
+<div class="container">
+
+  <!-- Reference Repo -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">★</div>
+      <h2>Reference Repository</h2>
+    </div>
+    <div class="section-body">
+      <p>Use the <strong>TheoKanning/openai-java</strong> library as your Java OpenAI client throughout this project.</p>
+      <a class="repo-link" href="https://github.com/TheoKanning/openai-java" target="_blank">
+        ⬡ github.com/TheoKanning/openai-java
+      </a>
+      <div class="callout info">
+        <span class="callout-icon">ℹ</span>
+        <p>Always pick the <strong>latest release</strong> from the Releases tab of this repo. Do not hardcode a version — check Maven Central or the repo for the most recent stable tag before adding it to your <code class="inline">pom.xml</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Architecture -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">1</div>
+      <h2>System Architecture</h2>
+      <span class="subtitle">Overview</span>
+    </div>
+    <div class="section-body">
+      <p>The system has four main layers. Each layer has a single responsibility:</p>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="layer">Entry</div>
+          <div class="name">REST Controller</div>
+          <div class="detail">Validates input,<br>routes to services</div>
+        </div>
+        <div class="arch-card">
+          <div class="layer">Core</div>
+          <div class="name">Service Layer</div>
+          <div class="detail">NLP parsing,<br>business logic,<br>insights generation</div>
+        </div>
+        <div class="arch-card">
+          <div class="layer">External</div>
+          <div class="name">OpenAI / Gemini</div>
+          <div class="detail">GPT-4o for parsing<br>and insight generation</div>
+        </div>
+        <div class="arch-card">
+          <div class="layer">Persistence</div>
+          <div class="name">PostgreSQL + JPA</div>
+          <div class="detail">Expense, Category,<br>User tables</div>
+        </div>
+        <div class="arch-card">
+          <div class="layer">Cache</div>
+          <div class="name">Redis</div>
+          <div class="detail">Cache AI insights<br>with TTL of 1 hour</div>
+        </div>
+        <div class="arch-card">
+          <div class="layer">Security</div>
+          <div class="name">Spring Security + JWT</div>
+          <div class="detail">Per-user data isolation<br>on all endpoints</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Structure -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">2</div>
+      <h2>Project Structure</h2>
+      <span class="subtitle">File layout</span>
+    </div>
+    <div class="section-body">
+      <div class="tree">
+<span class="dir">expense-tracker/</span>
+├── <span class="dir">src/main/java/com/tracker/</span>
+│   ├── <span class="dir">controller/</span>
+│   │   └── <span class="file">ExpenseController.java</span>       <span class="dim"># REST endpoints</span>
+│   ├── <span class="dir">service/</span>
+│   │   ├── <span class="file">NLPParsingService.java</span>         <span class="dim"># Natural language → JSON</span>
+│   │   ├── <span class="file">ExpenseService.java</span>            <span class="dim"># CRUD + business logic</span>
+│   │   └── <span class="file">InsightsService.java</span>           <span class="dim"># AI spending analysis</span>
+│   ├── <span class="dir">model/</span>
+│   │   ├── <span class="file">Expense.java</span>                   <span class="dim"># JPA entity</span>
+│   │   └── <span class="file">ParsedExpense.java</span>             <span class="dim"># DTO from NLP output</span>
+│   ├── <span class="dir">repository/</span>
+│   │   └── <span class="file">ExpenseRepository.java</span>         <span class="dim"># Spring Data JPA</span>
+│   └── <span class="dir">config/</span>
+│       ├── <span class="file">OpenAIConfig.java</span>              <span class="dim"># Bean setup</span>
+│       └── <span class="file">SecurityConfig.java</span>            <span class="dim"># JWT filter chain</span>
+├── <span class="dir">src/main/resources/</span>
+│   └── <span class="file">application.properties</span>
+└── <span class="file">pom.xml</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- pom.xml -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">3</div>
+      <h2>Dependencies</h2>
+      <span class="subtitle">pom.xml</span>
+    </div>
+    <div class="section-body">
+      <p>Add the following dependencies to your <code class="inline">pom.xml</code>. Do not pin versions for Spring Boot starters — let the parent BOM manage them. For <code class="inline">openai-java</code>, always use the latest release from the reference repo.</p>
+      <div class="callout warn">
+        <span class="callout-icon">⚠</span>
+        <p>For <code class="inline">openai-gpt3-java</code>, check the latest artifact name on <strong>Maven Central</strong> or the GitHub Releases page of the reference repo — the artifact ID may change across major releases.</p>
+      </div>
+      <div class="file-label">pom.xml</div>
+<pre>&lt;parent&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+&lt;/parent&gt;
+
+&lt;dependencies&gt;
+
+  &lt;!-- Spring Boot core --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- JPA / ORM --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- Security (JWT filter added manually) --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- Redis cache --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- OpenAI Java client — always use latest from:
+       https://github.com/TheoKanning/openai-java --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;com.theokanning.openai-gpt3-java&lt;/groupId&gt;
+    &lt;artifactId&gt;service&lt;/artifactId&gt;
+    &lt;version&gt;LATEST&lt;/version&gt; &lt;!-- replace with actual latest release --&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- PostgreSQL driver --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+    &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- Lombok (reduces boilerplate) --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+    &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+    &lt;optional&gt;true&lt;/optional&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- Jackson (JSON parsing for LLM responses) --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
+    &lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+
+&lt;/dependencies&gt;</pre>
+    </div>
+  </div>
+
+  <!-- application.properties -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">4</div>
+      <h2>Application Properties</h2>
+      <span class="subtitle">application.properties</span>
+    </div>
+    <div class="section-body">
+      <div class="callout note">
+        <span class="callout-icon">🔐</span>
+        <p>Never commit your <code class="inline">OPENAI_API_KEY</code> to source control. Use environment variables or a secrets manager in production.</p>
+      </div>
+      <div class="file-label">src/main/resources/application.properties</div>
+<pre># Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/expenses_db
+spring.datasource.username=postgres
+spring.datasource.password=yourpassword
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+
+# Redis
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+
+# OpenAI — load from environment variable
+openai.api.key=${OPENAI_API_KEY}
+
+# App settings
+app.insights.cache-ttl-hours=1
+app.default-currency=INR</pre>
+    </div>
+  </div>
+
+  <!-- OpenAI Config -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">5</div>
+      <h2>OpenAI Configuration Bean</h2>
+      <span class="subtitle">config/OpenAIConfig.java</span>
+    </div>
+    <div class="section-body">
+      <div class="file-label">OpenAIConfig.java</div>
+<pre>@Configuration
+public class OpenAIConfig {
+
+    @Value("${openai.api.key}")
+    private String apiKey;
+
+    @Bean
+    public OpenAiService openAiService() {
+        return new OpenAiService(apiKey);
+    }
+}</pre>
+    </div>
+  </div>
+
+  <!-- Expense Entity -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">6</div>
+      <h2>Expense Entity</h2>
+      <span class="subtitle">model/Expense.java</span>
+    </div>
+    <div class="section-body">
+      <p>This JPA entity stores both the parsed structured data and the original raw input from the user. Keeping <code class="inline">rawInput</code> allows you to re-parse later if your prompt improves.</p>
+      <div class="file-label">Expense.java</div>
+<pre>@Entity
+@Data
+@Table(name = "expenses")
+public class Expense {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
+    private String userId;            // scoped per authenticated user
+
+    private BigDecimal amount;
+    private String currency;          // "INR", "USD", etc.
+
+    @Enumerated(EnumType.STRING)
+    private Category category;        // FOOD, SHOPPING, TRAVEL, HEALTH,
+                                      // ENTERTAINMENT, UTILITIES, OTHER
+
+    private String vendor;            // "Amazon", "Zomato" — nullable
+    private String description;       // cleaned short description
+    private LocalDate expenseDate;    // parsed or today if absent
+    private String rawInput;          // original natural language text
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+}
+
+// Category enum (in same package)
+public enum Category {
+    FOOD, SHOPPING, TRAVEL, HEALTH, ENTERTAINMENT, UTILITIES, OTHER
+}</pre>
+      <div class="file-label" style="margin-top:20px">ParsedExpense.java (DTO)</div>
+<pre>@Data
+public class ParsedExpense {
+    private BigDecimal amount;
+    private String currency;
+    private Category category;
+    private String vendor;
+    private String description;
+    private LocalDate expenseDate;
+}</pre>
+    </div>
+  </div>
+
+  <!-- NLPParsingService -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">7</div>
+      <h2>NLP Parsing Service</h2>
+      <span class="subtitle">service/NLPParsingService.java — the core magic</span>
+    </div>
+    <div class="section-body">
+      <p>This service sends the raw user text to GPT with a tightly constrained system prompt. The model returns <strong>only a JSON object</strong> — no preamble. Temperature is set to <code class="inline">0.0</code> to get deterministic, consistent parsing every time.</p>
+      <div class="callout tip">
+        <span class="callout-icon">✓</span>
+        <p>Always inject today's date into the prompt so the model can resolve relative expressions like "today", "yesterday", or "last Friday" correctly.</p>
+      </div>
+      <div class="file-label">NLPParsingService.java</div>
+<pre>@Service
+@RequiredArgsConstructor
+public class NLPParsingService {
+
+    private final OpenAiService openAiService;
+    private final ObjectMapper objectMapper;
+
+    private static final String SYSTEM_PROMPT = """
+        You are an expense parser. Given a natural language expense description,
+        extract structured data and return ONLY valid JSON — no explanation,
+        no markdown, no extra text. The JSON must follow this exact shape:
+
+        {
+          "amount": &lt;number&gt;,
+          "currency": "&lt;3-letter ISO code, default INR&gt;",
+          "category": "&lt;one of: FOOD, SHOPPING, TRAVEL, HEALTH, ENTERTAINMENT, UTILITIES, OTHER&gt;",
+          "vendor": "&lt;merchant or platform name, or null if unknown&gt;",
+          "description": "&lt;short cleaned description, max 10 words&gt;",
+          "expenseDate": "&lt;YYYY-MM-DD — use today's date if not mentioned&gt;"
+        }
+
+        Examples:
+        Input:  "i spent 300 bucks on amazon today"
+        Output: {"amount":300,"currency":"INR","category":"SHOPPING",
+                  "vendor":"Amazon","description":"Purchase on Amazon",
+                  "expenseDate":"2025-05-21"}
+
+        Input:  "grabbed lunch at zomato for 150"
+        Output: {"amount":150,"currency":"INR","category":"FOOD",
+                  "vendor":"Zomato","description":"Lunch via Zomato",
+                  "expenseDate":"2025-05-21"}
+
+        Input:  "paid 2000 for doctor visit last monday"
+        Output: {"amount":2000,"currency":"INR","category":"HEALTH",
+                  "vendor":null,"description":"Doctor visit",
+                  "expenseDate":"2025-05-19"}
+        """;
+
+    public ParsedExpense parse(String naturalLanguageInput) {
+        String today = LocalDate.now().toString();
+
+        List&lt;ChatMessage&gt; messages = List.of(
+            new ChatMessage("system", SYSTEM_PROMPT),
+            new ChatMessage("user",
+                "Today is " + today + ". Parse this: " + naturalLanguageInput)
+        );
+
+        ChatCompletionRequest request = ChatCompletionRequest.builder()
+            .model("gpt-4o")
+            .messages(messages)
+            .temperature(0.0)    // deterministic output
+            .maxTokens(300)
+            .build();
+
+        String jsonResponse = openAiService
+            .createChatCompletion(request)
+            .getChoices().get(0)
+            .getMessage()
+            .getContent()
+            .trim();
+
+        try {
+            return objectMapper.readValue(jsonResponse, ParsedExpense.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse LLM response: " + jsonResponse, e);
+        }
+    }
+}</pre>
+    </div>
+  </div>
+
+  <!-- ExpenseService -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">8</div>
+      <h2>Expense Service</h2>
+      <span class="subtitle">service/ExpenseService.java</span>
+    </div>
+    <div class="section-body">
+      <div class="file-label">ExpenseService.java</div>
+<pre>@Service
+@RequiredArgsConstructor
+public class ExpenseService {
+
+    private final ExpenseRepository expenseRepository;
+    private final NLPParsingService nlpParsingService;
+
+    public Expense saveFromNaturalLanguage(String rawText, String userId) {
+        ParsedExpense parsed = nlpParsingService.parse(rawText);
+
+        Expense expense = new Expense();
+        expense.setUserId(userId);
+        expense.setAmount(parsed.getAmount());
+        expense.setCurrency(parsed.getCurrency());
+        expense.setCategory(parsed.getCategory());
+        expense.setVendor(parsed.getVendor());
+        expense.setDescription(parsed.getDescription());
+        expense.setExpenseDate(parsed.getExpenseDate());
+        expense.setRawInput(rawText);              // preserve original input
+
+        return expenseRepository.save(expense);
+    }
+
+    public List&lt;Expense&gt; getAllByUser(String userId) {
+        return expenseRepository.findByUserId(userId);
+    }
+
+    public List&lt;Expense&gt; getByUserSince(String userId, LocalDate since) {
+        return expenseRepository.findByUserIdAndExpenseDateAfter(userId, since);
+    }
+
+    public void delete(String expenseId, String userId) {
+        Expense expense = expenseRepository.findById(expenseId)
+            .orElseThrow(() -> new RuntimeException("Expense not found"));
+        if (!expense.getUserId().equals(userId)) {
+            throw new SecurityException("Access denied");
+        }
+        expenseRepository.delete(expense);
+    }
+}</pre>
+    </div>
+  </div>
+
+  <!-- InsightsService -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">9</div>
+      <h2>Insights Service</h2>
+      <span class="subtitle">service/InsightsService.java</span>
+    </div>
+    <div class="section-body">
+      <p>This service aggregates the user's expense data, builds a readable summary, and sends it to GPT with a finance-advisor prompt. Results are cached in Redis to avoid repeated expensive API calls.</p>
+      <div class="callout tip">
+        <span class="callout-icon">✓</span>
+        <p>Use <code class="inline">temperature 0.7</code> here (unlike the parser) — a slightly creative tone produces more natural, readable financial advice.</p>
+      </div>
+      <div class="file-label">InsightsService.java</div>
+<pre>@Service
+@RequiredArgsConstructor
+public class InsightsService {
+
+    private final OpenAiService openAiService;
+    private final ExpenseService expenseService;
+    private final StringRedisTemplate redisTemplate;
+
+    @Value("${app.insights.cache-ttl-hours}")
+    private int cacheTtlHours;
+
+    public String generateInsights(String userId, int days) {
+        String cacheKey = "insights:" + userId + ":" + days;
+
+        // Return cached result if available
+        String cached = redisTemplate.opsForValue().get(cacheKey);
+        if (cached != null) return cached;
+
+        // Fetch and summarize spending data
+        LocalDate since = LocalDate.now().minusDays(days);
+        List&lt;Expense&gt; expenses = expenseService.getByUserSince(userId, since);
+
+        if (expenses.isEmpty()) {
+            return "No expenses found in the last " + days + " days.";
+        }
+
+        String summary = buildSummary(expenses);
+
+        String prompt = """
+            You are a personal finance advisor reviewing a user's spending.
+            Provide a concise analysis covering:
+            1. Top spending categories and whether any seem excessive
+            2. Any unusual one-off expenses worth flagging
+            3. One actionable money-saving tip based on the actual data
+            4. Overall spending health score out of 10 with a brief reason
+
+            User's spending data (last %d days):
+            %s
+            """.formatted(days, summary);
+
+        ChatCompletionRequest request = ChatCompletionRequest.builder()
+            .model("gpt-4o")
+            .messages(List.of(new ChatMessage("user", prompt)))
+            .temperature(0.7)
+            .maxTokens(600)
+            .build();
+
+        String insights = openAiService
+            .createChatCompletion(request)
+            .getChoices().get(0)
+            .getMessage()
+            .getContent();
+
+        // Cache insights
+        redisTemplate.opsForValue().set(cacheKey, insights, Duration.ofHours(cacheTtlHours));
+        return insights;
+    }
+
+    private String buildSummary(List&lt;Expense&gt; expenses) {
+        // Total per category
+        Map&lt;Category, DoubleSummaryStatistics&gt; byCategory = expenses.stream()
+            .collect(Collectors.groupingBy(
+                Expense::getCategory,
+                Collectors.summarizingDouble(e -> e.getAmount().doubleValue())
+            ));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Total transactions: ").append(expenses.size()).append("\n\n");
+        sb.append("By category:\n");
+
+        byCategory.forEach((cat, stats) ->
+            sb.append("  ").append(cat)
+              .append(": ₹").append(String.format("%.0f", stats.getSum()))
+              .append(" across ").append(stats.getCount()).append(" transactions\n")
+        );
+
+        // Append top 5 largest expenses for context
+        sb.append("\nLargest individual expenses:\n");
+        expenses.stream()
+            .sorted(Comparator.comparing(Expense::getAmount).reversed())
+            .limit(5)
+            .forEach(e -> sb.append("  ")
+                .append(e.getDescription())
+                .append(" — ₹").append(e.getAmount())
+                .append(" (").append(e.getCategory()).append(")\n")
+            );
+
+        return sb.toString();
+    }
+}</pre>
+    </div>
+  </div>
+
+  <!-- ExpenseRepository -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">10</div>
+      <h2>Repository</h2>
+      <span class="subtitle">repository/ExpenseRepository.java</span>
+    </div>
+    <div class="section-body">
+      <div class="file-label">ExpenseRepository.java</div>
+<pre>@Repository
+public interface ExpenseRepository extends JpaRepository&lt;Expense, String&gt; {
+
+    List&lt;Expense&gt; findByUserId(String userId);
+
+    List&lt;Expense&gt; findByUserIdAndExpenseDateAfter(String userId, LocalDate date);
+
+    // For summary queries (used in reporting)
+    @Query("SELECT e.category, SUM(e.amount) FROM Expense e " +
+           "WHERE e.userId = :userId AND e.expenseDate >= :since " +
+           "GROUP BY e.category")
+    List&lt;Object[]&gt; sumByCategory(@Param("userId") String userId,
+                                 @Param("since") LocalDate since);
+}</pre>
+    </div>
+  </div>
+
+  <!-- Controller -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">11</div>
+      <h2>REST Controller</h2>
+      <span class="subtitle">controller/ExpenseController.java</span>
+    </div>
+    <div class="section-body">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>POST</td><td>/api/expenses/natural-language</td><td>Submit a natural language expense string</td></tr>
+          <tr><td>GET</td><td>/api/expenses</td><td>Get all expenses for the authenticated user</td></tr>
+          <tr><td>DELETE</td><td>/api/expenses/{id}</td><td>Delete an expense owned by the user</td></tr>
+          <tr><td>GET</td><td>/api/expenses/insights?days=30</td><td>Get AI-generated spending insights</td></tr>
+        </tbody>
+      </table>
+      <div class="file-label">ExpenseController.java</div>
+<pre>@RestController
+@RequestMapping("/api/expenses")
+@RequiredArgsConstructor
+public class ExpenseController {
+
+    private final ExpenseService expenseService;
+    private final InsightsService insightsService;
+
+    /**
+     * Main NL input endpoint.
+     * Body: { "text": "i spent 300 bucks on amazon today" }
+     */
+    @PostMapping("/natural-language")
+    public ResponseEntity&lt;Expense&gt; addFromText(
+            @RequestBody Map&lt;String, String&gt; body,
+            @AuthenticationPrincipal UserDetails user) {
+
+        String rawText = body.get("text");
+        if (rawText == null || rawText.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Expense saved = expenseService.saveFromNaturalLanguage(rawText, user.getUsername());
+        return ResponseEntity.ok(saved);
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Expense&gt;&gt; getAll(
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(expenseService.getAllByUser(user.getUsername()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity&lt;Void&gt; delete(
+            @PathVariable String id,
+            @AuthenticationPrincipal UserDetails user) {
+        expenseService.delete(id, user.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/insights")
+    public ResponseEntity&lt;String&gt; getInsights(
+            @AuthenticationPrincipal UserDetails user,
+            @RequestParam(defaultValue = "30") int days) {
+        return ResponseEntity.ok(
+            insightsService.generateInsights(user.getUsername(), days)
+        );
+    }
+}</pre>
+    </div>
+  </div>
+
+  <!-- End-to-end flow -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">12</div>
+      <h2>End-to-End Request Flow</h2>
+      <span class="subtitle">How it all connects</span>
+    </div>
+    <div class="section-body">
+      <p>When a user sends <code class="inline">"i spent 300 bucks on amazon today"</code>:</p>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-dot">1</div>
+          <div class="flow-text">
+            <strong>POST /api/expenses/natural-language</strong>
+            <span>JWT is validated by Spring Security. Request body <code class="inline">{ "text": "..." }</code> reaches the controller.</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot">2</div>
+          <div class="flow-text">
+            <strong>NLPParsingService.parse()</strong>
+            <span>Sends the text to GPT-4o with a strict JSON-only system prompt and today's date injected. Temperature is 0.0.</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot">3</div>
+          <div class="flow-text">
+            <strong>GPT returns structured JSON</strong>
+            <span><code class="inline">{"amount":300,"currency":"INR","category":"SHOPPING","vendor":"Amazon","expenseDate":"..."}</code></span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot">4</div>
+          <div class="flow-text">
+            <strong>ExpenseService.saveFromNaturalLanguage()</strong>
+            <span>Maps the parsed DTO to the <code class="inline">Expense</code> entity. Saves raw input alongside structured fields to PostgreSQL.</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot">5</div>
+          <div class="flow-text">
+            <strong>GET /api/expenses/insights?days=30</strong>
+            <span>InsightsService checks Redis cache first (TTL 1h). If miss, aggregates all expenses by category, sends summary to GPT at temperature 0.7, caches the result.</span>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot">6</div>
+          <div class="flow-text">
+            <strong>GPT returns personalized advice</strong>
+            <span>Top spending categories, unusual expenses, one saving tip, and a health score out of 10.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key decisions -->
+  <div class="section">
+    <div class="section-header">
+      <div class="step-num">13</div>
+      <h2>Key Design Decisions</h2>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li><strong>Temperature 0.0 for parsing, 0.7 for insights</strong> — deterministic JSON extraction vs. natural conversational advice.</li>
+        <li><strong>Always store <code class="inline">rawInput</code></strong> — lets you re-parse all historical entries if your prompt improves, without data loss.</li>
+        <li><strong>Redis cache on insights</strong> — AI API calls are expensive. Insights cached for 1 hour per user per time window.</li>
+        <li><strong>Per-user scoping at the DB level</strong> — every query filters by <code class="inline">userId</code>, never only by expense ID, preventing data leakage between users.</li>
+        <li><strong>Inject today's date into the prompt</strong> — the LLM has no knowledge of the current date; you must supply it for relative expressions to resolve correctly.</li>
+        <li><strong>GPT-4o for both services</strong> — accurate at structured extraction and nuanced at financial advice. Swap to a smaller model for cost savings on parsing if needed.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
