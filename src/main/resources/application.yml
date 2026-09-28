@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/expense_tracker}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:9a6747f3b6118d0e83b9d42d31813150c65f73eab20740e507b815096b14d23c}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  insights:
+    cache-ttl-hours: ${INSIGHTS_CACHE_TTL_HOURS:1}
+  scheduler:
+    insights:
+      cron: ${SCHEDULER_INSIGHTS_CRON:0 0 2 * * *}
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY:#{null}}
+    url: ${OPENAI_API_URL:https://api.openai.com/v1/chat/completions}
+  model: ${OPENAI_MODEL:gpt-4o-mini}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
